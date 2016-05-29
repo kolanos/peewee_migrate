@@ -41,8 +41,9 @@ class Column(VanilaColumn):
         self.to_field = None
 
         if isinstance(field, pw.ForeignKeyField):
-            self.rel_model = field.rel_model
-            self.related_name = field.related_name
+            self.rel_model = "migrator.import_model('{}')".format('.'.join([
+                field.rel_model.__module__, field.rel_model.__name__]))
+            self.related_name = '{}_migrate'.format(field.related_name)
 
     def get_field_parameters(self):
         params = super(Column, self).get_field_parameters()
