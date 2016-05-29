@@ -63,9 +63,9 @@ class BaseRouter(object):
             models1 = auto
             models2 = list(self.migrator.orm.values())
 
-            migrate = diff_many(models1, models2)
+            migrate = diff_many(models1, models2, reverse=True)
             if not migrate:
-                return self.logger.warn('No changes has found.')
+                return self.logger.warn('No changes found.')
 
             migrate = NEWLINE + NEWLINE.join('\n\n'.join(migrate).split('\n'))
             migrate = CLEAN_RE.sub('\n', migrate)
@@ -74,9 +74,9 @@ class BaseRouter(object):
             rollback = NEWLINE + NEWLINE.join('\n\n'.join(rollback).split('\n'))
             rollback = CLEAN_RE.sub('\n', rollback)
 
-        self.logger.info('Create a migration "%s"', name)
+        self.logger.info('Creating migration "%s"', name)
         path = self._create(name, migrate, rollback)
-        self.logger.info('Migration has created %s', path)
+        self.logger.info('Migration created %s', path)
         return path
 
     def _create(self, name, migrate='', rollback=''):
@@ -121,7 +121,7 @@ class BaseRouter(object):
                 migrator.clean()
                 return migrator
 
-            self.logger.info('Run "%s"', name)
+            self.logger.info('Running "%s"', name)
             with self.database.transaction():
                 if not downgrade:
                     migrate(migrator, self.database, fake=fake)
@@ -129,7 +129,7 @@ class BaseRouter(object):
                     self.model.create(name=name)
                     self.logger.info('Done %s', name)
                 else:
-                    self.logger.info('Rollback %s', name)
+                    self.logger.info('Rolling back %s', name)
                     rollback(migrator, self.database, fake=fake)
                     migrator.run()
                     self.model.delete().where(self.model.name == name).execute()
@@ -143,7 +143,7 @@ class BaseRouter(object):
 
     def run(self, name=None, fake=False):
         """Run migrations."""
-        self.logger.info('Start migrations')
+        self.logger.info('Starting migrations')
 
         done = []
         diff = self.diff
@@ -185,7 +185,7 @@ class Router(BaseRouter):
     def todo(self):
         """Scan migrations in file system."""
         if not os.path.exists(self.migrate_dir):
-            self.logger.warn('Migration directory: %s does not exists.', self.migrate_dir)
+            self.logger.warn('Migration directory: %s does not exist.', self.migrate_dir)
             os.makedirs(self.migrate_dir)
         return sorted(
             ''.join(f[:-3]) for f in os.listdir(self.migrate_dir) if self.filemask.match(f))

@@ -41,9 +41,8 @@ class Column(VanilaColumn):
         self.to_field = None
 
         if isinstance(field, pw.ForeignKeyField):
-            self.rel_model = "migrator.import_model('{}')".format('.'.join([
-                field.rel_model.__module__, field.rel_model.__name__]))
-            self.related_name = '{}_migrate'.format(field.related_name)
+            self.rel_model = field.rel_model.__name__
+            self.related_name = field.related_name
 
     def get_field_parameters(self):
         params = super(Column, self).get_field_parameters()
@@ -90,7 +89,14 @@ def diff_one(model1, model2):
     return changes
 
 
-def diff_many(models1, models2):
+def diff_many(models1, models2, reverse=False):
+    models1 = pw.sort_models_topologically(models1)
+    models2 = pw.sort_models_topologically(models2)
+
+    if reverse:
+        models1 = reversed(models1)
+        models2 = reversed(models2)
+
     models1 = {m._meta.name: m for m in models1}
     models2 = {m._meta.name: m for m in models2}
 
