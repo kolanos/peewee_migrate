@@ -63,14 +63,14 @@ class BaseRouter(object):
             models1 = auto
             models2 = list(self.migrator.orm.values())
 
-            migrate = diff_many(models1, models2, reverse=True)
+            migrate = diff_many(models1, models2)
             if not migrate:
                 return self.logger.warn('No changes found.')
 
             migrate = NEWLINE + NEWLINE.join('\n\n'.join(migrate).split('\n'))
             migrate = CLEAN_RE.sub('\n', migrate)
 
-            rollback = diff_many(models2, models1)
+            rollback = diff_many(models2, models1, reverse=True)
             rollback = NEWLINE + NEWLINE.join('\n\n'.join(rollback).split('\n'))
             rollback = CLEAN_RE.sub('\n', rollback)
 
