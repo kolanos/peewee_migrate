@@ -259,11 +259,4 @@ class Migrator(object):
         self.ops.append(self.migrator.apply_default(model._meta.db_table, name, field))
         return model
 
-    def import_model(self, name):
-        components = name.split('.')
-        mod = __import__(components[0])
-        for comp in components[1:]:
-            mod = getattr(mod, comp)
-        return mod
-
 #  pylama:ignore=W0223,W0212,R
