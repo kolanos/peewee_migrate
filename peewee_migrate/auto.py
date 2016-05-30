@@ -89,9 +89,13 @@ def diff_one(model1, model2):
     return changes
 
 
-def diff_many(models1, models2):
+def diff_many(models1, models2, reverse=False):
     models1 = pw.sort_models_topologically(models1)
     models2 = pw.sort_models_topologically(models2)
+
+    if reverse:
+        models1 = reversed(models1)
+        models2 = reversed(models2)
 
     models1 = OrderedDict([(m._meta.name, m) for m in models1])
     models2 = OrderedDict([(m._meta.name, m) for m in models2])
